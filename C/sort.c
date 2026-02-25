@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int selectionSort(int arr[], int n){
+void selectionSort(int arr[], int n){
 
     for (int i = 0; i < n; i++){
         int min_index = i;
@@ -18,6 +18,18 @@ int selectionSort(int arr[], int n){
     
 }
 
+void insertionSort(int arr[], int n){
+    for (int i = 0; i < n; i++){
+        int x = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > x){
+            arr[j+1] = arr[j];
+            j--;
+        }
+        arr[j+1] = x;
+    }
+}
+
 int PrintArray(int *array, int size){
     for (int i = 0; i < size; i++){
         printf("%d ", array[i]);
@@ -32,6 +44,11 @@ int main(){
     int n = sizeof(arr) / sizeof(arr[0]);
 
     selectionSort(arr, n);
+    PrintArray(arr, n);
+
+    printf("______");
+
+    insertionSort(arr, n);
     PrintArray(arr, n);
 
     return 0;
