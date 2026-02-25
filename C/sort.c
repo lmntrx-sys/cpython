@@ -46,7 +46,7 @@ int main(){
     selectionSort(arr, n);
     PrintArray(arr, n);
 
-    printf("______");
+    printf("______\n");
 
     insertionSort(arr, n);
     PrintArray(arr, n);
