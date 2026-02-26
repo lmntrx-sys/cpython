@@ -18,6 +18,26 @@ void addFirst(struct node **head, int val){
     *head = New_node;
 }
 
+void PrintList(struct node *node){
+    struct node *temp = head;
+
+    while (head != NULL){
+        printf("%d -> ", temp->data);
+        temp = temp->next;
+    }
+    printf("NULL");
+    
+}
+
 int main(){
+    struct node *head = NULL;
+    
+    addFirst(&head, 10);
+    addFirst(&head, 20);
+    addFirst(&head, 30);
+    PrintList(head);
+
     return 0;
 }
+
+// TODO: Fix error
