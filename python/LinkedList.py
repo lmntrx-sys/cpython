@@ -19,9 +19,24 @@ class LinkedList:
             current = current.next
         print("None")
 
+    def reverse(self):
+        prev = None
+        current = self.head
+        while current:
+            next_node = current.next
+            current.next = prev
+            prev = current
+            current = next_node
+        self.head = prev
+
 ll = LinkedList()
 ll.insert(10)
 ll.insert(20)
 ll.insert(30)
 print("Linked List:")
+
 ll.printList()        
+
+print("reversed")
+ll.reverse()
+ll.printList()
