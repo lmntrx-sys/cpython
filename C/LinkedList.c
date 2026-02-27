@@ -5,7 +5,7 @@ struct node{
     int data;
     struct node *next;
 };
-struct head *head = NULL; 
+struct node *head = NULL; 
 
 void addFirst(struct node **head, int val){
     // 1. Declare a head pointer and make it as NULL.
@@ -19,13 +19,13 @@ void addFirst(struct node **head, int val){
 }
 
 void PrintList(struct node *node){
-    struct node *temp = head;
+    struct node *temp = node;
 
-    while (head != NULL){
+    while (temp != NULL){
         printf("%d -> ", temp->data);
         temp = temp->next;
     }
-    printf("NULL");
+    printf("NULL\n");
     
 }
 
