@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 struct node{
     int data;
@@ -18,6 +19,18 @@ void addFirst(struct node **head, int val){
     *head = New_node;
 }
 
+void reverseListRecursive(struct node **head){
+    if (*head == NULL || (*head)->next == NULL)
+        return;
+    
+    struct node *temp = (*head)->next;
+    reverseListRecursive(&temp);
+    
+    temp->next = *head;
+    (*head)->next = NULL;
+    *head = temp;
+}
+
 void PrintList(struct node *node){
     struct node *temp = node;
 
@@ -29,6 +42,16 @@ void PrintList(struct node *node){
     
 }
 
+void freeList(struct node *head){
+    struct node *temp;
+    
+    while (head != NULL){
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
 int main(){
     struct node *head = NULL;
     
@@ -36,6 +59,11 @@ int main(){
     addFirst(&head, 20);
     addFirst(&head, 30);
     PrintList(head);
+
+    reverseListRecursive(&head);
+    PrintList(head);
+
+    freeList(head);
 
     return 0;
 }
