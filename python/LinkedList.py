@@ -29,6 +29,7 @@ class LinkedList:
             current = next_node
         self.head = prev
 
+
 ll = LinkedList()
 ll.insert(10)
 ll.insert(20)
