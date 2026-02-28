@@ -25,10 +25,10 @@ Node* insertAtFront(Node* head, int val){
 void PrintList(Node* head){
     Node* curr = head;
     while (curr != NULL){
-        cout << " " << curr->data;
+        cout << " -> " << curr->data;
         curr = curr->next;
     }
-    
+    cout << endl;
 }
 
 int main(){
