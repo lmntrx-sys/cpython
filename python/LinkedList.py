@@ -19,6 +19,20 @@ class LinkedList:
             current = current.next
         print("None")
 
+    def insertAfter(self, prev_node, val):
+        curr = self.head
+        while curr:
+            if curr.val == prev_node:
+                break
+            curr = curr.next
+            
+        if not prev_node:
+            return None
+        
+        newNode = Node(val)
+        newNode.next = prev_node.next
+
+
     def reverse(self):
         prev = None
         current = self.head
