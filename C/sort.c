@@ -38,6 +38,25 @@ int PrintArray(int *array, int size){
     return 0;
 }
  
+void swap(int *a, int *b){
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int partition(int arr[], int low, int high){
+    int pivot = arr[high];
+    int i = low -1;
+
+    for (int j = low; j < high; j++){
+        if (arr[j] <= pivot){
+            i++;
+            arr[i], arr[j] = arr[j], arr[j];
+        }
+    }
+    arr[i+1], arr[high] = arr[high], arr[i+1];
+    return i+1;
+}
 
 int main(){
     int arr[] = {64, 56, 32, 7, 0, 23, 45, 6, 11};
