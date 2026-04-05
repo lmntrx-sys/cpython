@@ -59,6 +59,22 @@ void PrintList(Node* head){
     cout << endl;
 }
 
+Node* reverseList(Node* head){
+
+    Node* curr = head;
+    Node* prev = nullptr;
+
+    while (curr != nullptr){
+        Node* temp = curr->next;
+        curr->next = prev;
+        temp = curr;
+        curr = prev;
+
+    }
+    return head;
+
+}
+
 int main(){
     Node* head = new Node(1);
     head->next = new Node(2);
