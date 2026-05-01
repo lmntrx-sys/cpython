@@ -1,22 +1,33 @@
 #include <fcntl.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #define BUFFSIZE 1024
-
 
 int main()
 {   
     ssize_t nread;
-    int src_fd, dest_fd;
-    src_fd = open("input.txt", O_WRONLY | O_CREAT | O_TRUNC, 0664);
+    int dest_fd;
+    dest_fd = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0664);
 
-    char buffer[BUFFSIZE];    
-    nread = read(0, buffer, sizeof(buffer));
+    if (dest_fd==-1)
+    {
+        write(2, "Error opening file \n", 19);
+        return 1;
+    }
 
-    if (nread > 0){ write(dest_fd, buffer, nread); }
-
-    close(src_fd);
+    char buffer[BUFFSIZE];
+    
+    while ((nread = read(0, buffer, sizeof(buffer))) > 0)
+    {
+        /* code */
+        if (write(dest_fd, buffer, nread) == -1)
+        {
+            write(2, "Write error \n", 12);
+            close(dest_fd);
+            return 1;
+        }
+    }
+    
+    close(dest_fd);
     return 0;
 }
