@@ -13,6 +13,12 @@ typedef struct
     size_t capacity;
 } Stack;
 
+typedef struct 
+{
+    char op;
+} Opstack;
+
+
 char* getExpression()
 {
     char *line = NULL;
@@ -31,6 +37,23 @@ char* getExpression()
     return line;
 }
 
+void push(Stack* stack, double value){
+    
+    if (stack->size == stack->capacity){
+        stack->capacity = stack->capacity ? stack->capacity * 2 : 8;
+        double *new_data = realloc(stack->data, stack->capacity * sizeof(*stack->data));
+
+        if (new_data == NULL){
+            fprintf(stderr, "Out of memory! Sorry");
+            free(stack->data);
+            exit(1);
+        }
+        stack->data = new_data;
+
+    }
+    stack->data[stack->size++] = value;
+}
+
 // FIX: this took `Stack stack` by value. C passes structs by copy — any
 // change made to `stack` inside this function was invisible to main() the
 // moment parseExpression returned. On top of that, the very next line
@@ -40,9 +63,11 @@ char* getExpression()
 // and this local one (built correctly, then thrown away when the function
 // returned — its heap-allocated `.data` leaking, unreachable forever).
 // A pointer fixes both problems at once: no copy, no shadow variable.
-void parseExpression(char *line, Stack* stack)
+int32_t parseExpression(char *line, Stack* stack, Opstack* op_stack)
 {
     char *p = line;
+    int32_t op_pos = 0;
+    int32_t expr_pos = 0;
     // (local `Stack st = {0};` removed — `stack` IS the caller's Stack now)
 
     while (*p != '\n' && *p != '\0')
@@ -56,78 +81,39 @@ void parseExpression(char *line, Stack* stack)
             char *endptr;
             double value = strtod(p, &endptr);
 
-            if (stack->size == stack->capacity)
-            {
-                stack->capacity = stack->capacity ? stack->capacity * 2 : 8;
-                stack->data = realloc(stack->data, stack->capacity * sizeof(*stack->data));
-            }
-
-            stack->data[stack->size++] = value;
-            // this push is correct — growable, bounds-respecting. nice.
-
+            push(stack, value);
             p = endptr;
             continue;
         }
 
         if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '%') {
-            // if (stack->size < 2) {
-            //     fprintf(stderr, "Input malformed\n");
-            //     fflush(stderr);
-            //     // FIX: originally fell through to the pops below even
-            //     // after printing the error. stack->size can be 0 or 1
-            //     // here — `--stack->size` on an already-0 size_t wraps to
-            //     // SIZE_MAX (unsigned, can't go negative), and the next
-            //     // line would read stack->data[SIZE_MAX] — wildly out of
-            //     // bounds. Your check was the right idea; it just needed
-            //     // to actually stop execution once it fired.
-            
-            // }
 
-            // TODO — you're here: `op` tells you which operation to run
-            // on `left` and `right`, but nothing does that yet, and
-            // nothing pushes a result back onto the stack. Without a push
-            // here, every operator call only removes values — the stack
-            // will end up empty (or underflow) instead of holding a
-            // running result. (The push you need is the same shape as
-            // the one in the number branch above — same capacity-doubling
-            // check and everything. Might be worth factoring that into a
-            // push(Stack*, double) helper you call from both spots.)
-
-            double right = stack->data[--stack->size];
-            double left = stack->data[--stack->size];
-            double result = 0.0;
-
-            switch (*p)
-            {
-                case '+': result = left + right; break;
-                case '-': result = left - right; break;
-                case '*': result = left * right; break;
-                case '/':
-                    if (right == 0.0) {
-                        fprintf(stderr, "Division by zero not allowed\n");
-                        fflush(stderr);
-                        return;
-                    }
-                    result = left / right;
-                    break;
-                case '%':
-                    result = left - (int)(left / right) * right;
-                    break;
+            // FIX: `sizeof(op_stack)` is the size of the POINTER
+            // (always 4 or 8 bytes) — it can never be 0, so this could
+            // never actually detect "nothing pending yet." Since main
+            // zero-initializes with `Opstack op_st = {0};`, `.op` starts
+            // as '\0' — that's your real sentinel to check instead:
+            if (op_stack->op == '\0'){
+                // TODO: still yours — record *p as pending here
+            } else {
+                switch (*p)   // FIX: was `switch ()` — empty parens don't
+                               // compile, a switch needs an expression
+                {
+                    // TODO: the precedence-aware defer/resolve logic
+                }
             }
 
-            if (stack->size == stack->capacity) {
-                stack->capacity = stack->capacity ? stack->capacity * 2 : 8;
-                stack->data = realloc(stack->data, stack->capacity * sizeof(*stack->data));
-            }
-            stack->data[stack->size++] = result;
-            p++;
-            continue;
+            // TODO: whichever branch above runs, you still need
+            // `p++; continue;` here — right now control always falls
+            // through into "Invalid character" below, even for a
+            // character that WAS a valid operator.
         }
 
         fprintf(stderr, "Invalid character in input\n");
-        fflush(stderr);
-        return;
+        return 1;
     }
+    return 0;
+
 }
 
 int main(){
@@ -135,18 +121,9 @@ int main(){
 
     if (expression == NULL){ return -1; };
     Stack st = {0};
+    Opstack op_st = {0};
 
-    parseExpression(expression, &st);
-    // FIX: was `parseExpression(expression, st)` — now that the function
-    // takes a Stack*, this needs `&st` so it operates on main's real
-    // stack instead of a copy that then gets thrown away.
-
-    // TODO: once operators push results correctly, st.size should end up
-    // 1 — that value is your answer. Decide what to do if it isn't (e.g.
-    // "3 4" with no operator, or "3 4 + 5" with a leftover value), print
-    // the result, and since st.data was realloc'd on the heap, it needs a
-    // free(st.data) somewhere before main returns — nothing does that yet.
-
+    parseExpression(expression, &st, &op_st);
     free(expression);
     return 0;
 }
