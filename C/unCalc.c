@@ -37,6 +37,17 @@ char* getExpression()
     return line;
 }
 
+int32_t* eval(int32_t* stack, char op) {
+
+    if (op == '+') { stack[*stack - 1] += stack[*stack]; }
+    else if (op == '-') { stack[*stack - 1] -= stack[*stack]; }
+    else if (op == '/') { stack[*stack - 1] /= stack[*stack]; }
+    else if (op == '*') { stack[*stack - 1] *= stack[*stack]; }
+    else if (op == '%'){ stack[*stack-1] %= stack[*stack]; }
+    *stack -= 1; 
+    return stack;
+}
+
 void push(Stack* stack, double value){
     
     if (stack->size == stack->capacity){
@@ -66,8 +77,6 @@ void push(Stack* stack, double value){
 int32_t parseExpression(char *line, Stack* stack, Opstack* op_stack)
 {
     char *p = line;
-    int32_t op_pos = 0;
-    int32_t expr_pos = 0;
     // (local `Stack st = {0};` removed — `stack` IS the caller's Stack now)
 
     while (*p != '\n' && *p != '\0')
@@ -97,9 +106,14 @@ int32_t parseExpression(char *line, Stack* stack, Opstack* op_stack)
                 // TODO: still yours — record *p as pending here
             } else {
                 switch (*p)   // FIX: was `switch ()` — empty parens don't
-                               // compile, a switch needs an expression
+                              // compile, a switch needs an expression
                 {
-                    // TODO: the precedence-aware defer/resolve logic
+                    case '*': case '/': case '%':
+                        if (op_stack->op == '+' || op_stack->op == '-'){
+
+                            
+                        }
+                    
                 }
             }
 
