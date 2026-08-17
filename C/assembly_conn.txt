@@ -1,0 +1,4 @@
+Commands to run the challenge
+    nasm -f elf64 -g -F dwarf decoder.nasm -o decoder.o
+    gcc -g assembly_conn.c decoder.o -o challenge
+    ./challenge
