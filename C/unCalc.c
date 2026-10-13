@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <stdint.h>
-#include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
@@ -127,9 +125,6 @@ int32_t precedence(char op) {
 int32_t parseExpression(char *line, Stack* stack, Opstack* op_stack)
 {
     char      *p = line;
-    int32_t   op_index = 0;
-    int32_t   stack_index = 0; 
-
     while (*p != '\n' && *p != '\0')
     {
         if (isspace((unsigned char)*p)) {
@@ -150,7 +145,7 @@ int32_t parseExpression(char *line, Stack* stack, Opstack* op_stack)
 
             while (!opStackEmpty(op_stack) && precedence(peekOp(op_stack)) >= precedence(*p)) {
 
-                // if what is at the stack has higher preceedence than the current operator, pop it and evaluate it
+                // if what is at the stack has higher precedence than the current operator, pop it and evaluate it
                 eval(stack, popOp(op_stack));
                 
 
